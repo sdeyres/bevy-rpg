@@ -1,3 +1,5 @@
+use std::path::MAIN_SEPARATOR;
+
 use bevy::prelude::*;
 use bevy_procedural_tilemaps::prelude::*;
 
@@ -48,7 +50,7 @@ pub fn prepare_tilemap_handles(
     assets_directory: &str,
     tilemap_file: &str,
 ) -> TilemapHandles {
-    let image = asset_server.load::<Image>(format!("{assets_directory}\\{tilemap_file}"));
+    let image = asset_server.load::<Image>(format!("{assets_directory}{MAIN_SEPARATOR}{tilemap_file}"));
     let mut layout = TextureAtlasLayout::new_empty(TILEMAP.atlas_size());
     for index in 0..TILEMAP.sprites.len() {
         layout.add_texture(TILEMAP.sprite_rect(index));

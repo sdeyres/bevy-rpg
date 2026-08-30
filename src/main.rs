@@ -1,6 +1,8 @@
 mod characters;
 mod map;
 
+use std::path::MAIN_SEPARATOR;
+
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_procedural_tilemaps::{proc_gen::grid::Cartesian3D, simple_plugin::ProcGenSimplePlugin};
 
@@ -13,7 +15,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .set(AssetPlugin {
-                    file_path: "src\\assets".into(),
+                    file_path: format!("src{MAIN_SEPARATOR}assets").into(),
                     ..default()
                 })
                 .set(WindowPlugin {

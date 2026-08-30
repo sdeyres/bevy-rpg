@@ -1,3 +1,5 @@
+use std::path::MAIN_SEPARATOR;
+
 use bevy::prelude::*;
 
 use crate::characters::{
@@ -42,7 +44,7 @@ pub fn spawn_player(
     mut character_index: ResMut<CurrentCharacterIndex>,
 ) {
     let character_list_handle: Handle<CharactersList> =
-        asset_server.load("characters\\characters.ron");
+        asset_server.load(format!("characters{MAIN_SEPARATOR}characters.ron"));
 
     commands.insert_resource(CharactersListResource {
         handle: character_list_handle,
