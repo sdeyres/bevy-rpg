@@ -1,4 +1,5 @@
 mod characters;
+mod collision;
 mod map;
 mod state;
 
