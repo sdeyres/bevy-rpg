@@ -3,11 +3,7 @@ use std::path::MAIN_SEPARATOR;
 use bevy::prelude::*;
 
 use crate::characters::{
-    animation::{
-        AnimationController, AnimationState, AnimationTimer, DEFAULT_ANIMATION_FRAME_TIME,
-    },
-    config::{CharacterEntry, CharactersList},
-    movement::Player,
+    animation::{AnimationController, AnimationTimer, DEFAULT_ANIMATION_FRAME_TIME}, config::{CharacterEntry, CharactersList}, facing::Facing, input::Player, physics::Velocity, state::CharacterState,
 };
 
 const PLAYER_SCALE: f32 = 0.8;
@@ -90,7 +86,9 @@ pub fn initialize_player_character(
 
         commands.entity(entity).insert((
             AnimationController::default(),
-            AnimationState::default(),
+            CharacterState::default(),
+            Velocity::default(),
+            Facing::default(),
             AnimationTimer(Timer::from_seconds(
                 DEFAULT_ANIMATION_FRAME_TIME,
                 TimerMode::Repeating,
