@@ -18,7 +18,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .set(AssetPlugin {
-                    file_path: format!("src{MAIN_SEPARATOR}assets").into(),
+                    file_path: format!("src{MAIN_SEPARATOR}assets"),
                     ..default()
                 })
                 .set(WindowPlugin {

@@ -107,12 +107,11 @@ pub fn animations_playback(
 ) {
     for (state, facing, controller, mut timer, mut sprite, config) in query.iter_mut() {
         if *state == CharacterState::Idle {
-            if let Some(atlas) = sprite.texture_atlas.as_mut() {
-                if let Some(clip) = controller.get_clip(config, facing) {
-                    if atlas.index != clip.start() {
-                        atlas.index = clip.start();
-                    }
-                }
+            if let Some(atlas) = sprite.texture_atlas.as_mut()
+                && let Some(clip) = controller.get_clip(config, facing)
+                && atlas.index != clip.start()
+            {
+                atlas.index = clip.start();
             }
             continue;
         }

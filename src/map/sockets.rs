@@ -50,7 +50,7 @@ pub struct PropsLayerSockets {
 pub fn create_sockets(socket_collection: &mut SocketCollection) -> TerrainSockets {
     let mut new_socket = || -> Socket { socket_collection.create() };
 
-    let sockets = TerrainSockets {
+    TerrainSockets {
         dirt: DirtLayerSockets {
             layer_up: new_socket(),
             layer_down: new_socket(),
@@ -85,7 +85,5 @@ pub fn create_sockets(socket_collection: &mut SocketCollection) -> TerrainSocket
             big_tree_1_base: new_socket(),
             big_tree_2_base: new_socket(),
         },
-    };
-
-    sockets
+    }
 }

@@ -21,7 +21,7 @@ impl TileType {
     pub fn collision_adjustment(&self) -> f32 {
         match self {
             Self::Tree | Self::Rock => -0.2,
-            _ => 0.
+            _ => 0.,
         }
     }
 }

@@ -2,12 +2,18 @@ use std::path::MAIN_SEPARATOR;
 
 use bevy::prelude::*;
 
-use crate::characters::{
-    animation::{AnimationController, AnimationTimer, DEFAULT_ANIMATION_FRAME_TIME}, config::{CharacterEntry, CharactersList}, facing::Facing, input::Player, physics::Velocity, state::CharacterState,
+use crate::{
+    characters::{
+        animation::{AnimationController, AnimationTimer, DEFAULT_ANIMATION_FRAME_TIME},
+        collider::Collider,
+        config::{CharacterEntry, CharactersList},
+        facing::Facing,
+        input::Player,
+        physics::Velocity,
+        state::CharacterState,
+    },
+    config::player::{PLAYER_SCALE, PLAYER_Z_POSITION},
 };
-
-const PLAYER_SCALE: f32 = 0.8;
-const PLAYER_Z_POSITION: f32 = 20.0;
 
 #[derive(Resource, Default)]
 pub struct CurrentCharacterIndex {
@@ -89,6 +95,7 @@ pub fn initialize_player_character(
             CharacterState::default(),
             Velocity::default(),
             Facing::default(),
+            Collider::default(),
             AnimationTimer(Timer::from_seconds(
                 DEFAULT_ANIMATION_FRAME_TIME,
                 TimerMode::Repeating,

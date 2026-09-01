@@ -336,7 +336,7 @@ pub fn build_water_layer(
     );
 
     // Main water tile
-    const WATER_WEIGHT: f32 = 0.02;
+    const WATER_WEIGHT: f32 = 0.001;
     terrain_model_builder
         .create_model(
             SocketsCartesian3D::Simple {
