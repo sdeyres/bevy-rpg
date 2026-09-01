@@ -3,12 +3,11 @@ use bevy::prelude::*;
 use crate::{
     characters::input::Player,
     config::{
-        map::{GRID_Y, TILE_SIZE},
+        map::{GRID_Y, NODE_SIZE_Z, TILE_SIZE},
         player::PLAYER_SCALE,
     },
 };
 
-const NODE_SIZE_Z: f32 = 1.;
 const PLAYER_BASE_Z: f32 = 4.;
 const PLAYER_Z_OFFSET: f32 = 0.5;
 

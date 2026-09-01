@@ -1,3 +1,4 @@
+mod camera;
 mod characters;
 mod collision;
 mod config;
@@ -7,15 +8,14 @@ mod state;
 
 use std::path::MAIN_SEPARATOR;
 
-use bevy::{prelude::*, window::WindowResolution};
+use bevy::{prelude::*, window::WindowMode};
 use bevy_procedural_tilemaps::{proc_gen::grid::Cartesian3D, simple_plugin::ProcGenSimplePlugin};
 
-use crate::map::generate::{map_pixel_dimensions, setup_generator};
+use crate::map::generate::setup_generator;
 
 fn main() {
-    let map_size = map_pixel_dimensions();
     App::new()
-        .insert_resource(ClearColor(Color::WHITE))
+        .insert_resource(ClearColor(Color::BLACK))
         .add_plugins(
             DefaultPlugins
                 .set(AssetPlugin {
@@ -24,8 +24,8 @@ fn main() {
                 })
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        resolution: WindowResolution::new(map_size.x as u32, map_size.y as u32),
-                        resizable: false,
+                        title: "Bevy RPG".into(),
+                        mode: WindowMode::BorderlessFullscreen(MonitorSelection::Current),
                         ..default()
                     }),
                     ..default()
@@ -34,13 +34,10 @@ fn main() {
         )
         .add_plugins(ProcGenSimplePlugin::<Cartesian3D, Sprite>::default())
         .add_plugins(state::StatePlugin)
+        .add_plugins(camera::CameraPlugin)
         .add_plugins(characters::CharactersPlugin)
         .add_plugins(inventory::InventoryPlugin)
         .add_plugins(collision::CollisionPlugin)
-        .add_systems(Startup, (setup_camera, setup_generator))
+        .add_systems(Startup, setup_generator)
         .run();
-}
-
-fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2d);
 }
