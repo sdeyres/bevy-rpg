@@ -12,3 +12,7 @@ pub mod map {
     pub const GRID_X: u32 = 25;
     pub const GRID_Y: u32 = 18;
 }
+
+pub mod pickup {
+    pub const DEFAULT_RADIUS: f32 = 40.;
+}

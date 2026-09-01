@@ -1,6 +1,7 @@
 mod characters;
 mod collision;
 mod config;
+mod inventory;
 mod map;
 mod state;
 
@@ -33,8 +34,9 @@ fn main() {
         )
         .add_plugins(ProcGenSimplePlugin::<Cartesian3D, Sprite>::default())
         .add_plugins(state::StatePlugin)
-        .add_plugins(collision::CollisionPlugin)
         .add_plugins(characters::CharactersPlugin)
+        .add_plugins(inventory::InventoryPlugin)
+        .add_plugins(collision::CollisionPlugin)
         .add_systems(Startup, (setup_camera, setup_generator))
         .run();
 }
