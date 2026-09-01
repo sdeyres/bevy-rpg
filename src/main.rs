@@ -4,6 +4,7 @@ mod collision;
 mod config;
 mod inventory;
 mod map;
+mod particles;
 mod state;
 
 use std::path::MAIN_SEPARATOR;
