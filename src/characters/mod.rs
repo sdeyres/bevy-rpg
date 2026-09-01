@@ -1,8 +1,10 @@
 pub mod animation;
+pub mod collider;
 pub mod config;
 pub mod facing;
 pub mod input;
 pub mod physics;
+pub mod rendering;
 pub mod spawn;
 pub mod state;
 
@@ -25,9 +27,13 @@ impl Plugin for CharactersPlugin {
                     spawn::switch_character,
                     input::update_jump_state,
                     animation::on_state_change_update_animation,
+                    collider::validate_movement,
                     physics::apply_velocity,
+                    rendering::update_player_depth,
                     animation::animations_playback,
-                ).chain().run_if(in_state(GameState::Playing)),
+                )
+                    .chain()
+                    .run_if(in_state(GameState::Playing)),
             );
     }
 }

@@ -65,7 +65,7 @@ impl CollisionMap {
     }
 
     pub fn is_walkable(&self, x: i32, y: i32) -> bool {
-        self.get_tile(x, y).map_or(false, |t| t.is_walkable())
+        self.get_tile(x, y).is_some_and(|t| t.is_walkable())
     }
 
     pub fn is_world_pos_walkable(&self, world_pos: Vec2) -> bool {
@@ -120,14 +120,12 @@ impl CollisionMap {
                     return false;
                 }
 
-                if let Some(tile) = self.get_tile(gx, gy) {
-                    if !tile.is_walkable() {
-                        let effective_radius =
-                            radius + tile.collision_adjustment() * self.tile_size;
+                if let Some(tile) = self.get_tile(gx, gy) && !tile.is_walkable() {
+                    let effective_radius =
+                        radius + tile.collision_adjustment() * self.tile_size;
 
-                        if self.circle_intersects_tile(center, effective_radius, gx, gy) {
-                            return false;
-                        }
+                    if self.circle_intersects_tile(center, effective_radius, gx, gy) {
+                        return false;
                     }
                 }
             }

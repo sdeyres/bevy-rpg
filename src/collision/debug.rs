@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{characters::input::Player, collision::map::CollisionMap};
+use crate::{characters::{collider::Collider, input::Player}, collision::map::CollisionMap};
 
 #[derive(Resource, Default)]
 pub struct DebugCollisionEnabled(pub bool);

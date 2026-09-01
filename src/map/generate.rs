@@ -1,18 +1,16 @@
 use bevy::prelude::*;
 use bevy_procedural_tilemaps::prelude::*;
 
-use crate::map::{
-    assets::{load_assets, prepare_tilemap_handles},
-    rules::build_world,
+use crate::{
+    config::map::{GRID_X, GRID_Y, TILE_SIZE},
+    map::{
+        assets::{load_assets, prepare_tilemap_handles},
+        rules::build_world,
+    },
 };
-
-pub const GRID_X: u32 = 25;
-pub const GRID_Y: u32 = 18;
 
 const ASSETS_PATH: &str = "tile_layers";
 const TILEMAP_FILE: &str = "tilemap.png";
-
-pub const TILE_SIZE: f32 = 32_f32;
 
 const NODE_SIZE: Vec3 = Vec3::new(TILE_SIZE, TILE_SIZE, 1_f32);
 

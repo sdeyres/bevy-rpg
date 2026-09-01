@@ -7,7 +7,7 @@ use crate::{
         map::CollisionMap,
         tile_type::{TileMarker, TileType},
     },
-    map::generate::{GRID_X, GRID_Y, TILE_SIZE},
+    config::map::{GRID_X, GRID_Y, TILE_SIZE},
 };
 
 #[derive(Resource, Default, PartialEq, Eq)]
@@ -63,8 +63,8 @@ pub fn build_collision_map(
         process_tile(marker, transform);
     }
 
-    let actual_width = (max_x - min_x + 1) as i32;
-    let actual_height = (max_y - min_y + 1) as i32;
+    let actual_width = max_x - min_x + 1;
+    let actual_height = max_y - min_y + 1;
 
     let mut map = CollisionMap::new(
         actual_width,
