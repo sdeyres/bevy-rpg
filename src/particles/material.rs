@@ -1,0 +1,67 @@
+use bevy::{
+    material::{descriptor::RenderPipelineDescriptor, specialize::SpecializedMeshPipelineError},
+    mesh::MeshVertexBufferLayoutRef,
+    prelude::*,
+    render::render_resource::{
+        AsBindGroup, BlendComponent, BlendFactor, BlendOperation, BlendState, ColorWrites,
+    },
+    shader::ShaderRef,
+    sprite_render::{AlphaMode2d, Material2d, Material2dKey},
+};
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct ParticleMaterial {
+    #[uniform(0)]
+    pub color: LinearRgba,
+}
+
+impl ParticleMaterial {
+    pub fn new(color: Color) -> Self {
+        Self {
+            color: color.to_linear(),
+        }
+    }
+}
+
+impl Material2d for ParticleMaterial {
+    #[cfg(target_os = "windows")]
+    fn fragment_shader() -> ShaderRef {
+        "shaders\\particle_glow.wsgl".into()
+    }
+
+    #[cfg(target_os = "linux")]
+    fn fragment_shader() -> ShaderRef {
+        "shaders\\particle_glow.wsgl".into()
+    }
+
+    fn alpha_mode(&self) -> AlphaMode2d {
+        AlphaMode2d::Blend
+    }
+
+    fn specialize(
+        descriptor: &mut RenderPipelineDescriptor,
+        _layout: &MeshVertexBufferLayoutRef,
+        _key: Material2dKey<Self>,
+    ) -> Result<(), SpecializedMeshPipelineError> {
+        if let Some(fragment) = &mut descriptor.fragment {
+            if let Some(target) = fragment.targets.first_mut() {
+                if let Some(target_state) = target.as_mut() {
+                    target_state.blend = Some(BlendState {
+                        color: BlendComponent {
+                            src_factor: BlendFactor::SrcAlpha,
+                            dst_factor: BlendFactor::One,
+                            operation: BlendOperation::Add,
+                        },
+                        alpha: BlendComponent {
+                            src_factor: BlendFactor::One,
+                            dst_factor: BlendFactor::One,
+                            operation: BlendOperation::Add,
+                        },
+                    });
+                    target_state.write_mask = ColorWrites::ALL;
+                }
+            }
+        }
+        Ok(())
+    }
+}
