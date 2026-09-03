@@ -1,6 +1,6 @@
-mod components;
-mod material;
-mod systems;
+pub mod components;
+pub mod material;
+pub mod systems;
 
 use bevy::{prelude::*, sprite_render::Material2dPlugin};
 

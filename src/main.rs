@@ -1,6 +1,7 @@
 mod camera;
 mod characters;
 mod collision;
+mod combat;
 mod config;
 mod inventory;
 mod map;
@@ -39,6 +40,8 @@ fn main() {
         .add_plugins(characters::CharactersPlugin)
         .add_plugins(inventory::InventoryPlugin)
         .add_plugins(collision::CollisionPlugin)
+        .add_plugins(particles::ParticlesPlugin)
+        .add_plugins(combat::CombatPlugin)
         .add_systems(Startup, setup_generator)
         .run();
 }

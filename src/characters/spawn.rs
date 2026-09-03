@@ -12,6 +12,7 @@ use crate::{
         physics::Velocity,
         state::CharacterState,
     },
+    combat::PlayerCombat,
     config::player::{PLAYER_SCALE, PLAYER_Z_POSITION},
 };
 
@@ -96,6 +97,7 @@ pub fn initialize_player_character(
             Velocity::default(),
             Facing::default(),
             Collider::default(),
+            PlayerCombat::default(),
             AnimationTimer(Timer::from_seconds(
                 DEFAULT_ANIMATION_FRAME_TIME,
                 TimerMode::Repeating,

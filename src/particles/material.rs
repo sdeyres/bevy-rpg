@@ -26,12 +26,12 @@ impl ParticleMaterial {
 impl Material2d for ParticleMaterial {
     #[cfg(target_os = "windows")]
     fn fragment_shader() -> ShaderRef {
-        "shaders\\particle_glow.wsgl".into()
+        "shaders\\particle_glow.wgsl".into()
     }
 
     #[cfg(target_os = "linux")]
     fn fragment_shader() -> ShaderRef {
-        "shaders\\particle_glow.wsgl".into()
+        "shaders\\particle_glow.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode2d {

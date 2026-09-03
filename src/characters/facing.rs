@@ -33,3 +33,14 @@ impl Facing {
         }
     }
 }
+
+impl From<&Facing> for Vec3 {
+    fn from(value: &Facing) -> Self {
+        match value {
+            Facing::Up => Vec3::Y,
+            Facing::Left => Vec3::NEG_X,
+            Facing::Down => Vec3::NEG_Y,
+            Facing::Right => Vec3::X,
+        }
+    }
+}
