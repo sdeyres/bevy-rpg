@@ -1,9 +1,9 @@
 use bevy::{
-    material::{descriptor::RenderPipelineDescriptor, specialize::SpecializedMeshPipelineError},
     mesh::MeshVertexBufferLayoutRef,
     prelude::*,
     render::render_resource::{
         AsBindGroup, BlendComponent, BlendFactor, BlendOperation, BlendState, ColorWrites,
+        RenderPipelineDescriptor, SpecializedMeshPipelineError,
     },
     shader::ShaderRef,
     sprite_render::{AlphaMode2d, Material2d, Material2dKey},
@@ -31,7 +31,7 @@ impl Material2d for ParticleMaterial {
 
     #[cfg(target_os = "linux")]
     fn fragment_shader() -> ShaderRef {
-        "shaders\\particle_glow.wgsl".into()
+        "shaders/particle_glow.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode2d {

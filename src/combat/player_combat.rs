@@ -11,8 +11,8 @@ pub struct PlayerCombat {
 impl Default for PlayerCombat {
     fn default() -> Self {
         Self {
+            power_type: PowerType::default(),
             cooldown: Timer::from_seconds(0.5, TimerMode::Once),
-            ..default()
         }
     }
 }
