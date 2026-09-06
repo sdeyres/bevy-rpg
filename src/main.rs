@@ -3,6 +3,7 @@ mod characters;
 mod collision;
 mod combat;
 mod config;
+mod enemy;
 mod inventory;
 mod map;
 mod particles;
@@ -42,6 +43,7 @@ fn main() {
         .add_plugins(collision::CollisionPlugin)
         .add_plugins(particles::ParticlesPlugin)
         .add_plugins(combat::CombatPlugin)
+        .add_plugins(enemy::EnemyPlugin)
         .add_systems(Startup, setup_generator)
         .run();
 }

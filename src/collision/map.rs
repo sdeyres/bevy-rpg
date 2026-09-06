@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{math::u32, prelude::*};
 
 use crate::collision::tile_type::TileType;
 
@@ -190,5 +190,128 @@ impl CollisionMap {
     #[cfg(debug_assertions)]
     pub fn origin(&self) -> Vec2 {
         Vec2::new(self.origin_x, self.origin_y)
+    }
+
+    pub fn get_neighbors(&self, pos: IVec2) -> Vec<IVec2> {
+        let mut neighbors = Vec::new();
+
+        let cardinals = [
+            IVec2::new(0, 1),
+            IVec2::new(0, -1),
+            IVec2::new(1, 0),
+            IVec2::new(-1, 0),
+        ];
+
+        for dir in cardinals {
+            let neighbor = pos + dir;
+            if self.is_walkable(neighbor.x, neighbor.y) {
+                neighbors.push(neighbor);
+            }
+        }
+
+        let diagonals = [
+            (IVec2::new(-1, 1), IVec2::new(-1, 0), IVec2::new(0, 1)),
+            (IVec2::new(1, 1), IVec2::new(1, 0), IVec2::new(0, 1)),
+            (IVec2::new(-1, -1), IVec2::new(-1, 0), IVec2::new(0, -1)),
+            (IVec2::new(1, -1), IVec2::new(1, 0), IVec2::new(0, -1)),
+        ];
+
+        for (diagonal, adj1, adj2) in diagonals {
+            let diag_pos = pos + diagonal;
+            let adj1_pos = pos + adj1;
+            let adj2_pos = pos + adj2;
+
+            if self.is_walkable(diag_pos.x, diag_pos.y)
+                && self.is_walkable(adj1_pos.x, adj1_pos.y)
+                && self.is_walkable(adj2_pos.x, adj2_pos.y)
+            {
+                neighbors.push(diag_pos);
+            }
+        }
+
+        neighbors
+    }
+
+    pub fn find_path(&self, start: Vec2, goal: Vec2) -> Option<Vec<Vec2>> {
+        use pathfinding::prelude::astar;
+
+        let start_grid = self.world_to_grid(start);
+        let goal_grid = self.world_to_grid(goal);
+
+        if !self.is_walkable(start_grid.x, start_grid.y) {
+            return None;
+        }
+
+        let actual_goal = if self.is_walkable(goal_grid.x, goal_grid.y) {
+            goal_grid
+        } else {
+            self.find_nearest_walkable(goal_grid)?
+        };
+
+        let result = astar(
+            &start_grid,
+            |pos| {
+                let pos = *pos;
+                self.get_neighbors(pos).into_iter().map(move |n| {
+                    let cost = if (n.x - pos.x).abs() + (n.y - pos.y).abs() == 2 {
+                        14u32
+                    } else {
+                        10u32
+                    };
+                    (n, cost)
+                })
+            },
+            |pos| {
+                let dx = (pos.x - actual_goal.x).abs();
+                let dy = (pos.y - actual_goal.y).abs();
+                ((dx + dy) * 10) as u32
+            },
+            |pos| *pos == actual_goal,
+        );
+
+        result.map(|(path, _cost)| {
+            path.into_iter()
+                .map(|p| self.grid_to_world(p.x, p.y))
+                .collect()
+        })
+    }
+
+    pub fn find_nearest_walkable(&self, pos: IVec2) -> Option<IVec2> {
+        for radius in 1i32..10 {
+            for dx in -radius..=radius {
+                for dy in -radius..=radius {
+                    if dx.abs() == radius || dy.abs() == radius {
+                        let check = IVec2::new(pos.x + dx, pos.y + dy);
+                        if self.is_walkable(check.x, check.y) {
+                            return Some(check);
+                        }
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
+    pub fn find_nearest_clear_position(&self, world_pos: Vec2, radius: f32) -> Option<Vec2> {
+        let grid_pos = self.world_to_grid(world_pos);
+
+        for ring in 0i32..20 {
+            for dx in -ring..=ring {
+                for dy in -ring..=ring {
+                    if ring > 0 && dx.abs() != ring && dy.abs() != ring {
+                        continue;
+                    }
+
+                    let candidate_grid = IVec2::new(grid_pos.x + dx, grid_pos.y + dy);
+                    let candidate_world = self.grid_to_world(candidate_grid.x, candidate_grid.y);
+                    if self.is_circle_clear(candidate_world, radius) {
+                        return Some(candidate_world);
+                    }
+                }
+            }
+        }
+
+        None
     }
 }
