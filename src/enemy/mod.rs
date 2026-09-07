@@ -6,9 +6,9 @@ mod spawn;
 use bevy::prelude::*;
 
 pub use components::{AIBehavior, Enemy, EnemyCombat};
-pub use spawn::spawn_enemy;
+pub use spawn::{EnemiesSpawned, spawn_enemy};
 
-use crate::{collision::CollisionMapBuilt, enemy::spawn::EnemiesSpawned, state::GameState};
+use crate::{collision::CollisionMapBuilt, state::GameState};
 
 pub struct EnemyPlugin;
 

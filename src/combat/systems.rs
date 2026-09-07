@@ -3,9 +3,11 @@ use bevy::prelude::*;
 use crate::{
     characters::{facing::Facing, input::Player},
     combat::{
+        events::ProjectileHit,
         player_combat::PlayerCombat,
         power_type::{PowerType, PowerVisuals},
     },
+    enemy::Enemy,
     particles::components::ParticleEmitter,
 };
 
@@ -139,5 +141,52 @@ pub fn debug_switch_power(
     if let Some(power) = new_power {
         combat.power_type = power;
         info!("Switched to {:?}", power);
+    }
+}
+
+pub fn move_projectiles(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut projectiles: Query<(Entity, &mut Projectile, &mut Transform)>,
+) {
+    let dt = time.delta_secs();
+    for (entity, mut projectile, mut transform) in projectiles.iter_mut() {
+        projectile.lifetime -= dt;
+        if projectile.lifetime <= 0. {
+            commands.entity(entity).despawn();
+            continue;
+        }
+        transform.translation += projectile.velocity * dt;
+    }
+}
+
+pub fn check_projectile_hits(
+    mut commands: Commands,
+    projectiles: Query<(Entity, &Projectile, &Transform)>,
+    players: Query<(Entity, &GlobalTransform), With<Player>>,
+    enemies: Query<(Entity, &GlobalTransform), With<Enemy>>,
+) {
+    for (projectile_entity, projectile, transform) in &projectiles {
+        let projectile_position = transform.translation;
+
+        let hit_target = match projectile.owner {
+            ProjectileOwner::Player => enemies
+                .iter()
+                .find(|(_, t)| projectile_position.distance(t.translation()) < projectile.radius)
+                .map(|(e, _)| e),
+            ProjectileOwner::Enemy => players
+                .iter()
+                .find(|(_, t)| projectile_position.distance(t.translation()) <= projectile.radius)
+                .map(|(e, _)| e),
+        };
+
+        if let Some(target) = hit_target {
+            commands.trigger(ProjectileHit {
+                target,
+                damage: projectile.power_type.damage(),
+                power_type: projectile.power_type,
+            });
+            commands.entity(projectile_entity).despawn();
+        }
     }
 }

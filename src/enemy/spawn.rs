@@ -11,6 +11,7 @@ use crate::{
         state::CharacterState,
     },
     collision::CollisionMap,
+    combat::Health,
     config::{
         enemy::{ENEMY_SCALE, ENEMY_Z_POSITION},
         player::COLLIDER_RADIUS,
@@ -62,6 +63,7 @@ pub fn spawn_enemy(
                 DEFAULT_ANIMATION_FRAME_TIME,
                 TimerMode::Repeating,
             )),
+            Health::new(character_entry.max_health),
             character_entry.clone(),
         ))
         .id();

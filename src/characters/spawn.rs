@@ -13,7 +13,7 @@ use crate::{
         state::CharacterState,
     },
     collision::CollisionMap,
-    combat::PlayerCombat,
+    combat::{Health, PlayerCombat},
     config::player::{COLLIDER_RADIUS, PLAYER_SCALE, PLAYER_Z_POSITION},
 };
 
@@ -189,6 +189,7 @@ pub fn spawn_player_at_valid_position(
             DEFAULT_ANIMATION_FRAME_TIME,
             TimerMode::Repeating,
         )),
+        Health::new(character_entry.max_health),
         character_entry.clone(),
     ));
 

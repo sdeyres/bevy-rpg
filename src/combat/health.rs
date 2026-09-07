@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::combat::events::EntityDeath;
+
 #[derive(Component)]
 pub struct Health {
     pub current: f32,
@@ -11,8 +13,12 @@ impl Health {
         Self { current: max, max }
     }
 
-    pub fn take_damage(&mut self, amount: f32) {
+    pub fn take_damage(&mut self, commands: &mut Commands, entity: Entity, amount: f32) {
         self.current = (self.current - amount).max(0.);
+
+        if !self.is_alive() {
+            commands.trigger(EntityDeath { entity });
+        }
     }
 
     pub fn is_alive(&self) -> bool {
