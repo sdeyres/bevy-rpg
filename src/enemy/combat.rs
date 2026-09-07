@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     characters::input::Player,
-    combat::spawn_projectile,
+    combat::{ProjectileOwner, spawn_projectile},
     enemy::components::{AIBehavior, Enemy, EnemyCombat},
 };
 
@@ -30,7 +30,13 @@ pub fn enemy_attack(
 
             let visuals = combat.power_type.visuals(to_player);
 
-            spawn_projectile(&mut commands, spawn_position, combat.power_type, &visuals);
+            spawn_projectile(
+                &mut commands,
+                spawn_position,
+                combat.power_type,
+                &visuals,
+                ProjectileOwner::Enemy,
+            );
 
             combat.cooldown.reset();
 

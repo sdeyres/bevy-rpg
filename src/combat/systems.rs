@@ -14,6 +14,21 @@ pub struct ProjectileEffect {
     pub power_type: PowerType,
 }
 
+#[derive(Component, Clone, Copy)]
+pub enum ProjectileOwner {
+    Player,
+    Enemy,
+}
+
+#[derive(Component)]
+pub struct Projectile {
+    pub velocity: Vec3,
+    pub lifetime: f32,
+    pub power_type: PowerType,
+    pub owner: ProjectileOwner,
+    pub radius: f32,
+}
+
 pub fn handle_power_input(
     mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
@@ -45,7 +60,13 @@ pub fn handle_power_input(
 
     let visuals = combat.power_type.visuals(direction);
 
-    spawn_projectile(&mut commands, spawn_position, combat.power_type, &visuals);
+    spawn_projectile(
+        &mut commands,
+        spawn_position,
+        combat.power_type,
+        &visuals,
+        ProjectileOwner::Player,
+    );
 
     info!("{:?} projctile fired!", combat.power_type);
 }
@@ -55,6 +76,7 @@ pub fn spawn_projectile(
     position: Vec3,
     power_type: PowerType,
     visuals: &PowerVisuals,
+    owner: ProjectileOwner,
 ) {
     let primary_emitter =
         ParticleEmitter::new(0.016, visuals.particles_per_spawn, visuals.primary.clone())
@@ -79,6 +101,19 @@ pub fn spawn_projectile(
             ProjectileEffect { power_type },
         ));
     }
+
+    let direction = visuals.primary.direction.normalize_or_zero();
+    let speed = visuals.primary.speed;
+    commands.spawn((
+        Projectile {
+            velocity: direction * speed,
+            lifetime: 2.0,
+            power_type,
+            owner,
+            radius: power_type.hitbox_radius(),
+        },
+        Transform::from_translation(position),
+    ));
 }
 
 pub fn debug_switch_power(

@@ -154,6 +154,24 @@ impl PowerType {
             core_particles_per_spawn: 0,
         }
     }
+
+    pub fn damage(&self) -> f32 {
+        match self {
+            Self::Fire => 25.,
+            Self::Arcane => 35.,
+            Self::Shadow => 20.,
+            Self::Poison => 15.,
+        }
+    }
+
+    pub fn hitbox_radius(&self) -> f32 {
+        match self {
+            Self::Fire => 30.,
+            Self::Arcane => 18.,
+            Self::Shadow => 15.,
+            Self::Poison => 25.,
+        }
+    }
 }
 
 #[derive(Clone)]

@@ -1,3 +1,4 @@
+mod health;
 mod player_combat;
 mod power_type;
 mod systems;
@@ -6,7 +7,9 @@ use bevy::prelude::*;
 
 pub use player_combat::PlayerCombat;
 pub use power_type::{PowerType, PowerVisuals};
-pub use systems::{ProjectileEffect, debug_switch_power, handle_power_input, spawn_projectile};
+pub use systems::{
+    ProjectileEffect, ProjectileOwner, debug_switch_power, handle_power_input, spawn_projectile,
+};
 
 pub struct CombatPlugin;
 
