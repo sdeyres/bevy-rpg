@@ -17,6 +17,11 @@ use crate::{
     state::GameState,
 };
 
+pub use config::CharacterEntry;
+pub use facing::Facing;
+pub use input::Player;
+pub use spawn::CurrentCharacterIndex;
+
 pub struct CharactersPlugin;
 
 impl Plugin for CharactersPlugin {

@@ -21,10 +21,8 @@ use bevy_procedural_tilemaps::{
 use crate::{
     config::map::{
         CHUNKS_X, CHUNKS_Y, GRID_X, GRID_Y, NODE_SIZE_Z, TILE_SIZE, TOTAL_GRID_X, TOTAL_GRID_Y,
-    },
-    map::{
-        assets::{load_assets, prepare_tilemap_handles},
-        rules::build_world,
+    }, map::{
+        assets::{TilemapHandles, load_assets, prepare_tilemap_handles}, rules::build_world,
     },
 };
 
@@ -61,10 +59,19 @@ struct ChunkResult {
     chunk_y: u32,
 }
 
-pub fn setup_generator(
+pub fn prepare_tilemap_handles_resource(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    let tilemap_handles =
+        prepare_tilemap_handles(asset_server, &mut atlas_layouts, ASSETS_PATH, TILEMAP_FILE);
+    commands.insert_resource(tilemap_handles);
+}
+
+pub fn setup_generator(
+    mut commands: Commands,
+    tilemap_handles: Res<TilemapHandles>
 ) {
     let (assets_definitions, models, socket_collection) = build_world();
 
@@ -77,8 +84,6 @@ pub fn setup_generator(
     let grid_template =
         CartesianGrid::new_cartesian_3d(GRID_X, GRID_Y, GRID_Z, false, false, false);
 
-    let tilemap_handles =
-        prepare_tilemap_handles(asset_server, &mut atlas_layouts, ASSETS_PATH, TILEMAP_FILE);
     let models_assets = load_assets(&tilemap_handles, assets_definitions);
     let spawner = NodesSpawner::new(models_assets, NODE_SIZE, ASSETS_SCALE);
 

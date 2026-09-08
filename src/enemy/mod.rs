@@ -5,7 +5,7 @@ mod spawn;
 
 use bevy::prelude::*;
 
-pub use components::{AIBehavior, Enemy, EnemyCombat};
+pub use components::{AIBehavior, Enemy, EnemyCombat, EnemyPath};
 pub use spawn::{EnemiesSpawned, spawn_enemy};
 
 use crate::{collision::CollisionMapBuilt, state::GameState};

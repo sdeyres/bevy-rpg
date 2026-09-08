@@ -4,6 +4,7 @@ pub mod systems;
 
 use bevy::{prelude::*, sprite_render::Material2dPlugin};
 
+pub use components::*;
 pub use material::*;
 pub use systems::*;
 

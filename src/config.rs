@@ -35,3 +35,8 @@ pub mod camera {
     pub const CAMERA_LERP_SPEED: f32 = 6.;
     pub const CAMERA_Z: f32 = 1000.;
 }
+
+pub mod save {
+    pub const SAVE_VERSION: u32 = 1;
+    pub const MAX_SLOTS: usize = 5;
+}

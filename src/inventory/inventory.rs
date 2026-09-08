@@ -1,10 +1,11 @@
 use std::{collections::HashMap, fmt};
 
 use bevy::prelude::*;
+use serde::{Deserialize, Serialize};
 
 use crate::config::pickup::DEFAULT_RADIUS;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ItemKind {
     Plant1,
     Plant2,
@@ -68,5 +69,13 @@ impl Inventory {
             .collect();
         parts.sort();
         parts.join(", ")
+    }
+
+    pub fn items(&self) -> &HashMap<ItemKind, u32> {
+        &self.items
+    }
+
+    pub fn set_items(&mut self, items: HashMap<ItemKind, u32>) {
+        self.items = items
     }
 }

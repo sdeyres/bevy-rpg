@@ -1,11 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::spawn::PlayerSpawned,
-    combat::{ProjectileEffect, HealthBarOwner, Projectile},
-    enemy::{EnemiesSpawned, Enemy},
-    particles::components::{Particle, ParticleEmitter},
-    state::GameState,
+    characters::{Player, spawn::PlayerSpawned}, collision::{CollisionMap, CollisionMapBuilt, TileMarker}, combat::{HealthBarOwner, Projectile, ProjectileEffect}, enemy::{EnemiesSpawned, Enemy}, inventory::Inventory, map::generate::MapReady, particles::components::{Particle, ParticleEmitter}, state::GameState,
 };
 
 #[derive(Component)]
@@ -61,6 +57,8 @@ pub fn handle_restart_input(
 
 pub fn cleanup_game_world(
     mut commands: Commands,
+    tiles: Query<Entity, With<TileMarker>>,
+    players: Query<Entity, With<Player>>,
     enemies: Query<Entity, With<Enemy>>,
     projectiles: Query<Entity, With<Projectile>>,
     projectile_effects: Query<Entity, With<ProjectileEffect>>,
@@ -69,7 +67,15 @@ pub fn cleanup_game_world(
     healthbars: Query<Entity, With<HealthBarOwner>>,
     mut player_spawned: ResMut<PlayerSpawned>,
     mut enemies_spawned: ResMut<EnemiesSpawned>,
+    mut collision_map_built: ResMut<CollisionMapBuilt>,
+    mut inventory: ResMut<Inventory>,
 ) {
+    for entity in tiles {
+        commands.entity(entity).despawn();
+    }
+    for entity in players {
+        commands.entity(entity).despawn();
+    }
     for entity in &enemies {
         commands.entity(entity).despawn();
     }
@@ -96,4 +102,8 @@ pub fn cleanup_game_world(
 
     player_spawned.0 = false;
     enemies_spawned.0 = false;
+    collision_map_built.0 = false;
+    commands.remove_resource::<CollisionMap>();
+    inventory.set_items(Default::default());
+    commands.remove_resource::<MapReady>();
 }

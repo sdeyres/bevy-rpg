@@ -7,6 +7,7 @@ mod enemy;
 mod inventory;
 mod map;
 mod particles;
+mod save;
 mod state;
 
 use std::path::MAIN_SEPARATOR;
@@ -14,8 +15,7 @@ use std::path::MAIN_SEPARATOR;
 use bevy::{prelude::*, window::WindowMode};
 
 use crate::{
-    map::generate::{poll_map_generation, setup_generator},
-    state::GameState,
+    map::generate::{poll_map_generation, prepare_tilemap_handles_resource, setup_generator}, state::GameState,
 };
 
 fn main() {
@@ -45,7 +45,9 @@ fn main() {
         .add_plugins(combat::CombatPlugin)
         .add_plugins(enemy::EnemyPlugin)
         .add_plugins(particles::ParticlesPlugin)
-        .add_systems(Startup, setup_generator)
+        .add_plugins(save::SavePlugin)
+        .add_systems(Startup, prepare_tilemap_handles_resource)
+        .add_systems(OnEnter(GameState::Loading), setup_generator)
         .add_systems(
             Update,
             poll_map_generation.run_if(in_state(GameState::Loading)),

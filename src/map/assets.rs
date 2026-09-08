@@ -43,7 +43,7 @@ impl SpawnableAsset {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Resource)]
 pub struct TilemapHandles {
     pub image: Handle<Image>,
     pub layout: Handle<TextureAtlasLayout>,
@@ -150,6 +150,8 @@ fn create_spawner(tile_type: Option<TileType>, pickable: Option<ItemKind>) -> fn
         (Some(TileType::Grass), Some(ItemKind::Plant4)) => |e: &mut EntityCommands| {
             e.insert((TileMarker::new(TileType::Grass), Pickable::new(ItemKind::Plant4)));
         },
-        _ => |_: &mut EntityCommands| {},
+        _ => |e: &mut EntityCommands| {
+            e.insert(TileMarker::new(TileType::Empty));
+        },
     }
 }

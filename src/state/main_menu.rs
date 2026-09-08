@@ -6,21 +6,19 @@ use crate::{
 };
 
 #[derive(Component)]
-pub struct PauseMenu;
+pub struct MainMenuScreen;
 
 #[derive(Component)]
-pub enum PauseMenuButton {
-    Resume,
-    SaveGame,
+pub enum MainMenuButton {
+    NewGame,
     LoadGame,
-    MainMenu,
     Quit,
 }
 
-pub fn spawn_pause_menu(mut commands: Commands) {
+pub fn spawn_main_menu(mut commands: Commands) {
     commands
         .spawn((
-            PauseMenu,
+            MainMenuScreen,
             Node {
                 width: Val::Percent(100.),
                 height: Val::Percent(100.),
@@ -28,28 +26,26 @@ pub fn spawn_pause_menu(mut commands: Commands) {
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(Color::srgba(0., 0., 0., 0.7)),
+            BackgroundColor(Color::srgb(0.05, 0.05, 0.1)),
         ))
         .with_children(|parent| {
             parent.spawn((
-                Text::new("PAUSED"),
+                Text::new("Main menu"),
                 TextFont {
-                    font_size: FontSize::Px(42.),
+                    font_size: FontSize::Px(64.),
                     ..default()
                 },
-                TextColor(Color::WHITE),
+                TextColor(Color::srgb(0.8, 0.7, 1.0)),
                 Node {
-                    margin: UiRect::bottom(Val::Px(30.)),
+                    margin: UiRect::bottom(Val::Px(60.)),
                     ..default()
                 },
             ));
 
             let buttons = [
-                (PauseMenuButton::Resume, "Resume"),
-                (PauseMenuButton::SaveGame, "Save game"),
-                (PauseMenuButton::LoadGame, "Load game"),
-                (PauseMenuButton::MainMenu, "Main menu"),
-                (PauseMenuButton::Quit, "Quit"),
+                (MainMenuButton::NewGame, "New game"),
+                (MainMenuButton::LoadGame, "Load game"),
+                (MainMenuButton::Quit, "Quit"),
             ];
 
             for (button_type, label) in buttons {
@@ -58,80 +54,65 @@ pub fn spawn_pause_menu(mut commands: Commands) {
                         button_type,
                         Button,
                         Node {
-                            width: Val::Px(250.),
-                            height: Val::Px(50.),
+                            width: Val::Px(300.),
+                            height: Val::Px(55.),
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
-                            margin: UiRect::vertical(Val::Px(5.)),
+                            margin: UiRect::vertical(Val::Px(8.)),
                             ..default()
                         },
                         BackgroundColor(Color::srgba(0.15, 0.15, 0.3, 0.9)),
                     ))
-                    .with_children(|btn_parent| {
-                        btn_parent.spawn((
+                    .with_children(|button_parent| {
+                        button_parent.spawn((
                             Text::new(label),
                             TextFont {
-                                font_size: FontSize::Px(24.),
+                                font_size: FontSize::Px(28.),
                                 ..default()
                             },
-                            TextColor(Color::WHITE),
+                            TextColor::WHITE,
                         ));
                     });
             }
         });
-
-    info!("Pause menu spawned!");
 }
 
-pub fn despawn_pause_menu(mut commands: Commands, query: Query<Entity, With<PauseMenu>>) {
-    for entity in query.iter() {
+pub fn despawn_main_menu(mut commands: Commands, query: Query<Entity, With<MainMenuScreen>>) {
+    for entity in &query {
         commands.entity(entity).despawn();
     }
-
-    info!("Pause menu despawned!");
 }
 
-pub fn handle_pause_menu_buttons(
+pub fn handle_main_menu_buttons(
     mut next_state: ResMut<NextState<GameState>>,
     mut ui_state: ResMut<SaveLoadUIState>,
-    interaction_query: Query<(&Interaction, &PauseMenuButton), Changed<Interaction>>,
+    interaction_query: Query<(&Interaction, &MainMenuButton), Changed<Interaction>>,
     mut exit: MessageWriter<AppExit>,
 ) {
-    if ui_state.active {
-        return;
-    }
-
     for (interaction, button) in interaction_query {
         if *interaction != Interaction::Pressed {
             continue;
         }
 
         match button {
-            PauseMenuButton::Resume => {
-                next_state.set(GameState::Playing);
+            MainMenuButton::NewGame => {
+                next_state.set(GameState::Loading);
             }
-            PauseMenuButton::SaveGame => {
-                ui_state.active = true;
-                ui_state.mode = SaveLoadMode::Save;
-            }
-            PauseMenuButton::LoadGame => {
+            MainMenuButton::LoadGame => {
                 ui_state.active = true;
                 ui_state.mode = SaveLoadMode::Load;
             }
-            PauseMenuButton::MainMenu => {
-                next_state.set(GameState::MainMenu);
-            }
-            PauseMenuButton::Quit => {
+            MainMenuButton::Quit => {
                 exit.write(AppExit::Success);
             }
         }
     }
 }
 
-pub fn handle_pause_menu_hover(
+pub fn handle_main_menu_hover(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<PauseMenuButton>),
+        (Changed<Interaction>, With<MainMenuButton>),
     >,
 ) {
     for (interaction, mut bg) in &mut interaction_query {

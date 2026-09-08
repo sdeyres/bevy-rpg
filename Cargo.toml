@@ -7,6 +7,8 @@ edition = "2024"
 bevy = "0.19.1"
 bevy_common_assets = { version = "0.17.0", features = ["ron"] }
 bevy_procedural_tilemaps = "0.4.0"
+bincode-next = { version = "3.1.1", features = ["serde"] }
+chrono = { version = "0.4.45", features = ["serde"] }
 pathfinding = "4.15.0"
 rand = "0.10.2"
 serde = { version = "1.0.229", features = ["derive"] }
