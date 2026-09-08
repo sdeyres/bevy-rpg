@@ -13,7 +13,7 @@ use crate::{
         enemy::ENEMY_SCALE,
         player::PLAYER_SCALE,
         save::{MAX_SLOTS, SAVE_VERSION},
-    }, enemy::{AIBehavior, EnemiesSpawned, Enemy, EnemyPath}, inventory::{Inventory, Pickable}, map::{assets::TilemapHandles, generate::MapReady}, particles::{Particle, ParticleEmitter}, save::{data::{
+    }, enemy::{AIBehavior, EnemiesSpawned, Enemy, EnemyCombat, EnemyPath}, inventory::{Inventory, Pickable}, map::{assets::TilemapHandles, generate::MapReady}, particles::{Particle, ParticleEmitter}, save::{data::{
         EnemySave, PlayerSave, SaveData, SaveFile, SaveMetadata, TileSave, compute_checksum,
         meta_file_path, save_file_path, saves_directory,
     }, systems}, state::{GameState, pause::PauseMenu},
@@ -338,7 +338,7 @@ fn do_write_save(slot: usize, save_data: &SaveData, timestamp: &str) -> Result<(
         player_health_current: save_data.player.health_current,
         player_health_max: save_data.player.health_max,
     };
-    let meta_bytes = bincode_next::serde::encode_to_vec(metadata, config)
+    let meta_bytes = bincode_next::serde::encode_to_vec(&metadata, config)
         .map_err(|e| format!("Meta serialize error: {}", e))?;
     std::fs::write(meta_file_path(slot), meta_bytes)
         .map_err(|e| format!("Meta write error: {}", e))?;
@@ -562,6 +562,7 @@ pub fn execute_load(world: &mut World) {
                 current: enemy_data.health_current,
                 max: enemy_data.health_max,
             },
+            EnemyCombat::default(),
             AIBehavior::default(),
             EnemyPath::default(),
             AnimationTimer(Timer::from_seconds(

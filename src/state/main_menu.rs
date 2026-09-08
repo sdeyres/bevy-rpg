@@ -24,6 +24,7 @@ pub fn spawn_main_menu(mut commands: Commands) {
                 height: Val::Percent(100.),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
+                flex_direction: FlexDirection::Column,
                 ..default()
             },
             BackgroundColor(Color::srgb(0.05, 0.05, 0.1)),

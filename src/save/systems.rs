@@ -36,5 +36,6 @@ pub fn load_slot_metadata(slot: usize) -> Option<SaveMetadata> {
     let config = bincode_next::config::standard();
     let path = meta_file_path(slot);
     let bytes = fs::read(&path).ok()?;
-    bincode_next::serde::decode_from_slice(&bytes, config).ok()?.0
+    let (meta, _) = bincode_next::serde::decode_from_slice(&bytes, config).ok()?;
+    Some(meta)
 }

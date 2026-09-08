@@ -26,6 +26,7 @@ pub fn spawn_pause_menu(mut commands: Commands) {
                 height: Val::Percent(100.),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
+                flex_direction: FlexDirection::Column,
                 ..default()
             },
             BackgroundColor(Color::srgba(0., 0., 0., 0.7)),
