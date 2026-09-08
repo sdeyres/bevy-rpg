@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     characters::state::CharacterState,
     config::{
-        map::{GRID_Y, NODE_SIZE_Z, TILE_SIZE},
+        map::{NODE_SIZE_Z, TILE_SIZE, TOTAL_GRID_Y},
         player::PLAYER_SCALE,
     },
 };
@@ -14,8 +14,8 @@ const CHARACTER_Z_OFFSET: f32 = 0.5;
 pub fn update_character_depth(
     mut character_query: Query<&mut Transform, (With<CharacterState>, Changed<Transform>)>,
 ) {
-    let map_height = TILE_SIZE * GRID_Y as f32;
-    let map_y0 = -TILE_SIZE * GRID_Y as f32 / 2.;
+    let map_height = TILE_SIZE * TOTAL_GRID_Y as f32;
+    let map_y0 = -TILE_SIZE * TOTAL_GRID_Y as f32 / 2.;
 
     let character_sprite_height = 64. * PLAYER_SCALE;
 

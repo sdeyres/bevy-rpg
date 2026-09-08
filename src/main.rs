@@ -12,9 +12,11 @@ mod state;
 use std::path::MAIN_SEPARATOR;
 
 use bevy::{prelude::*, window::WindowMode};
-use bevy_procedural_tilemaps::{proc_gen::grid::Cartesian3D, simple_plugin::ProcGenSimplePlugin};
 
-use crate::map::generate::setup_generator;
+use crate::{
+    map::generate::{poll_map_generation, setup_generator},
+    state::GameState,
+};
 
 fn main() {
     App::new()
@@ -35,15 +37,18 @@ fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
         )
-        .add_plugins(ProcGenSimplePlugin::<Cartesian3D, Sprite>::default())
         .add_plugins(state::StatePlugin)
         .add_plugins(camera::CameraPlugin)
-        .add_plugins(characters::CharactersPlugin)
         .add_plugins(inventory::InventoryPlugin)
         .add_plugins(collision::CollisionPlugin)
-        .add_plugins(particles::ParticlesPlugin)
+        .add_plugins(characters::CharactersPlugin)
         .add_plugins(combat::CombatPlugin)
         .add_plugins(enemy::EnemyPlugin)
+        .add_plugins(particles::ParticlesPlugin)
         .add_systems(Startup, setup_generator)
+        .add_systems(
+            Update,
+            poll_map_generation.run_if(in_state(GameState::Loading)),
+        )
         .run();
 }

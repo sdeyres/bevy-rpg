@@ -18,6 +18,12 @@ pub mod map {
     pub const GRID_X: u32 = 25;
     pub const GRID_Y: u32 = 18;
 
+    pub const CHUNKS_X: u32 = 10;
+    pub const CHUNKS_Y: u32 = 10;
+
+    pub const TOTAL_GRID_X: u32 = CHUNKS_X * GRID_X - (CHUNKS_X - 1);
+    pub const TOTAL_GRID_Y: u32 = CHUNKS_Y * GRID_Y - (CHUNKS_Y - 1);
+
     pub const NODE_SIZE_Z: f32 = 1.;
 }
 

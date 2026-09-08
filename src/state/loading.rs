@@ -1,4 +1,8 @@
+use std::sync::atomic::Ordering;
+
 use bevy::prelude::*;
+
+use crate::map::generate::{MapGenProgress, MapReady};
 
 #[derive(Component)]
 pub struct LoadingScreen;
@@ -34,10 +38,22 @@ pub fn spawn_loading_screen(mut commands: Commands) {
     info!("Loading screen spawned!");
 }
 
-pub fn animate_loading(time: Res<Time>, mut query: Query<&mut Text, With<LoadingText>>) {
+pub fn animate_loading(
+    time: Res<Time>,
+    mut query: Query<&mut Text, With<LoadingText>>,
+    progress: Option<Res<MapGenProgress>>,
+    map_ready: Option<Res<MapReady>>,
+) {
     for mut text in query.iter_mut() {
-        let dots = (time.elapsed_secs() * 2.0) as usize % 4;
-        **text = format!("Loading{}", ".".repeat(dots));
+        if map_ready.is_some() {
+            **text = "Starting...".to_string();
+        } else if let Some(ref progress) = progress {
+            let current = progress.current.load(Ordering::Relaxed);
+            **text = format!("Generating world: {}/{}", current, progress.total);
+        } else {
+            let dots = (time.elapsed_secs() * 2.0) as usize % 4;
+            **text = format!("Loading{}", ".".repeat(dots));
+        }
     }
 }
 
