@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::particles::components::{EmissionShape, ParticleConfig};
+use crate::particles::{EmissionShape, ParticleConfig};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum PowerType {

@@ -2,13 +2,8 @@ use bevy::prelude::*;
 
 use crate::{
     characters::{
-        animation::{AnimationController, AnimationTimer, DEFAULT_ANIMATION_FRAME_TIME},
-        collider::Collider,
-        config::CharactersList,
-        facing::Facing,
-        physics::Velocity,
-        spawn::CharactersListResource,
-        state::CharacterState,
+        AnimationController, AnimationTimer, CharacterState, CharactersList,
+        CharactersListResource, Collider, DEFAULT_ANIMATION_FRAME_TIME, Facing, Velocity,
     },
     collision::CollisionMap,
     combat::Health,

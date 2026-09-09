@@ -1,22 +1,31 @@
 use bevy::prelude::*;
 
 use crate::{
-    audio::SfxKind, characters::{
-        CharacterEntry, CurrentCharacterIndex, Facing, Player,
-        animation::{AnimationController, AnimationTimer, DEFAULT_ANIMATION_FRAME_TIME},
-        collider::Collider,
-        config::CharactersList,
-        physics::Velocity,
-        spawn::{CharactersListResource, PlayerSpawned},
-        state::CharacterState,
-    }, collision::{CollisionMapBuilt, TileMarker}, combat::{Health, HealthBarOwner, PlayerCombat, Projectile, ProjectileEffect}, config::{
+    audio::SfxKind,
+    characters::{
+        AnimationController, AnimationTimer, CharacterEntry, CharacterState, CharactersList,
+        CharactersListResource, Collider, CurrentCharacterIndex, DEFAULT_ANIMATION_FRAME_TIME,
+        Facing, Player, PlayerSpawned, Velocity,
+    },
+    collision::{CollisionMapBuilt, TileMarker},
+    combat::{Health, HealthBarOwner, PlayerCombat, Projectile, ProjectileEffect},
+    config::{
         enemy::ENEMY_SCALE,
         player::PLAYER_SCALE,
         save::{MAX_SLOTS, SAVE_VERSION},
-    }, enemy::{AIBehavior, EnemiesSpawned, Enemy, EnemyCombat, EnemyPath}, inventory::{Inventory, Pickable}, map::{assets::TilemapHandles, generate::MapReady}, particles::{Particle, ParticleEmitter}, save::{data::{
-        EnemySave, PlayerSave, SaveData, SaveFile, SaveMetadata, TileSave, compute_checksum,
-        meta_file_path, save_file_path, saves_directory,
-    }, systems}, state::{GameState, pause::PauseMenu},
+    },
+    enemy::{AIBehavior, EnemiesSpawned, Enemy, EnemyCombat, EnemyPath},
+    inventory::{Inventory, Pickable},
+    map::{TilemapHandles, MapReady},
+    particles::{Particle, ParticleEmitter},
+    save::{
+        data::{
+            EnemySave, PlayerSave, SaveData, SaveFile, SaveMetadata, TileSave, compute_checksum,
+            meta_file_path, save_file_path, saves_directory,
+        },
+        systems,
+    },
+    state::{GameState, PauseMenu},
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

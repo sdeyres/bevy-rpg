@@ -1,7 +1,14 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::{Player, spawn::PlayerSpawned}, collision::{CollisionMap, CollisionMapBuilt, TileMarker}, combat::{HealthBarOwner, Projectile, ProjectileEffect}, enemy::{EnemiesSpawned, Enemy}, inventory::Inventory, map::generate::MapReady, particles::components::{Particle, ParticleEmitter}, state::GameState,
+    characters::{Player, PlayerSpawned},
+    collision::{CollisionMap, CollisionMapBuilt, TileMarker},
+    combat::{HealthBarOwner, Projectile, ProjectileEffect},
+    enemy::{EnemiesSpawned, Enemy},
+    inventory::Inventory,
+    map::MapReady,
+    particles::{Particle, ParticleEmitter},
+    state::GameState,
 };
 
 #[derive(Component)]

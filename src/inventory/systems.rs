@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    audio::SfxKind, characters::input::Player, inventory::{Inventory, Pickable},
+    audio::SfxKind, characters::Player, inventory::{Inventory, Pickable},
 };
 
 pub fn handle_pickups(

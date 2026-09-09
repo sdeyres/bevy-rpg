@@ -1,6 +1,12 @@
-pub mod assets;
-pub mod generate;
-pub mod models;
-pub mod rules;
-pub mod sockets;
-pub mod tilemap;
+mod assets;
+mod generate;
+mod models;
+mod rules;
+mod sockets;
+mod tilemap;
+
+pub use assets::TilemapHandles;
+pub use generate::{
+    MapGenProgress, MapReady, poll_map_generation, prepare_tilemap_handles_resource,
+    setup_generator,
+};

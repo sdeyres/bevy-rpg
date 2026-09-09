@@ -1,14 +1,12 @@
-pub mod components;
-pub mod material;
-pub mod systems;
+mod components;
+mod material;
+mod systems;
 
 use bevy::{prelude::*, sprite_render::Material2dPlugin};
 
-pub use components::*;
-pub use material::*;
-pub use systems::*;
+pub use components::{EmissionShape, Particle, ParticleConfig, ParticleEmitter};
 
-use crate::state::GameState;
+use crate::{particles::{material::ParticleMaterial, systems::{cleanup_finished_emitters, update_emitters, update_particles}}, state::GameState};
 
 pub struct ParticlesPlugin;
 

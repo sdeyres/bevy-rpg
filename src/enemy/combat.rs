@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     audio::SfxKind,
-    characters::input::Player,
+    characters::Player,
     combat::{ProjectileOwner, spawn_projectile},
     enemy::components::{AIBehavior, Enemy, EnemyCombat},
 };

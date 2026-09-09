@@ -2,14 +2,14 @@ use bevy::prelude::*;
 
 use crate::{
     audio::SfxKind,
-    characters::{facing::Facing, input::Player},
+    characters::{Facing, Player},
     combat::{
         events::ProjectileHit,
         player_combat::PlayerCombat,
         power_type::{PowerType, PowerVisuals},
     },
     enemy::Enemy,
-    particles::components::ParticleEmitter,
+    particles::ParticleEmitter,
 };
 
 #[derive(Component)]

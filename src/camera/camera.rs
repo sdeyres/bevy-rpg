@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::input::Player,
+    characters::Player,
     config::camera::{CAMERA_LERP_SPEED, CAMERA_Z},
 };
 

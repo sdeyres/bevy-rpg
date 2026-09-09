@@ -1,16 +1,17 @@
-pub mod game_over;
-pub mod game_state;
-pub mod loading;
-pub mod main_menu;
-pub mod pause;
+mod game_over;
+mod game_state;
+mod loading;
+mod main_menu;
+mod pause;
 
 use bevy::prelude::*;
 
-pub use game_state::GameState;
+pub use game_state::{GameMode, GameState, in_multiplayer};
+pub use pause::PauseMenu;
 
 use crate::{
-    characters::{config::CharactersList, spawn::CharactersListResource},
-    map::generate::MapReady,
+    characters::{CharactersList, CharactersListResource},
+    map::MapReady,
     save::SaveLoadUIState,
 };
 
@@ -18,7 +19,8 @@ pub struct StatePlugin;
 
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<GameState>()
+        app.insert_resource(GameMode::SinglePlayer)
+            .init_state::<GameState>()
             .add_systems(
                 OnEnter(GameState::MainMenu),
                 (game_over::cleanup_game_world, main_menu::spawn_main_menu).chain(),
@@ -32,7 +34,10 @@ impl Plugin for StatePlugin {
                 Update,
                 main_menu::handle_main_menu_hover.run_if(in_state(GameState::MainMenu)),
             )
-            .add_systems(OnEnter(GameState::Loading), loading::spawn_loading_screen)
+            .add_systems(
+                OnEnter(GameState::Loading),
+                loading::spawn_loading_screen.run_if(not(in_multiplayer)),
+            )
             .add_systems(
                 Update,
                 (check_assets_loaded, loading::animate_loading)

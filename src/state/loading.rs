@@ -2,7 +2,7 @@ use std::sync::atomic::Ordering;
 
 use bevy::prelude::*;
 
-use crate::map::generate::{MapGenProgress, MapReady};
+use crate::map::{MapGenProgress, MapReady};
 
 #[derive(Component)]
 pub struct LoadingScreen;

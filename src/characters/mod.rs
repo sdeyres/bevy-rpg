@@ -1,26 +1,26 @@
-pub mod animation;
-pub mod collider;
-pub mod config;
-pub mod facing;
-pub mod input;
-pub mod physics;
-pub mod rendering;
-pub mod spawn;
-pub mod state;
+mod animation;
+mod collider;
+mod config;
+mod facing;
+mod input;
+mod physics;
+mod rendering;
+mod spawn;
+mod state;
 
 use bevy::prelude::*;
 use bevy_common_assets::ron::RonAssetPlugin;
 
-use crate::{
-    characters::{config::CharactersList, spawn::PlayerSpawned},
-    collision::CollisionMapBuilt,
-    state::GameState,
-};
+use crate::{collision::CollisionMapBuilt, state::GameState};
 
-pub use config::CharacterEntry;
+pub use animation::{AnimationController, AnimationTimer, DEFAULT_ANIMATION_FRAME_TIME};
+pub use collider::Collider;
+pub use config::{CharacterEntry, CharactersList};
 pub use facing::Facing;
 pub use input::Player;
-pub use spawn::CurrentCharacterIndex;
+pub use physics::{Velocity, calculate_velocity};
+pub use spawn::{CharactersListResource, CurrentCharacterIndex, PlayerSpawned};
+pub use state::CharacterState;
 
 pub struct CharactersPlugin;
 

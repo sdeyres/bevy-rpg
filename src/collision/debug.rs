@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::{collider::Collider, input::Player},
+    characters::{Collider, Player},
     collision::map::CollisionMap,
 };
 

@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::{
-        config::CharacterEntry, facing::Facing, input::Player, physics::{Velocity, calculate_velocity}, state::CharacterState,
-    }, collision::CollisionMap, enemy::components::{AIBehavior, Enemy, EnemyPath},
+    characters::{CharacterEntry, CharacterState, Facing, Player, Velocity, calculate_velocity},
+    collision::CollisionMap,
+    enemy::components::{AIBehavior, Enemy, EnemyPath},
 };
 
 pub fn enemy_follow_player(

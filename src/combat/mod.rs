@@ -1,10 +1,10 @@
 mod events;
-pub mod health;
-pub mod healthbar;
+mod health;
+mod healthbar;
 mod observers;
 mod player_combat;
 mod power_type;
-pub mod systems;
+mod systems;
 
 use bevy::prelude::*;
 
