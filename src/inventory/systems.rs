@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::input::Player,
-    inventory::{Inventory, Pickable},
+    audio::SfxKind, characters::input::Player, inventory::{Inventory, Pickable},
 };
 
 pub fn handle_pickups(
@@ -29,6 +28,9 @@ pub fn handle_pickups(
     for (entity, kind) in collected {
         commands.entity(entity).despawn();
         let count = inventory.add(kind);
+
+        commands.trigger(SfxKind::Pickup);
+
         info!(
             "Picked up {} (total: {}) - Inventory: {}",
             kind,

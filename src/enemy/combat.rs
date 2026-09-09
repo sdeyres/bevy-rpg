@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    audio::SfxKind,
     characters::input::Player,
     combat::{ProjectileOwner, spawn_projectile},
     enemy::components::{AIBehavior, Enemy, EnemyCombat},
@@ -37,6 +38,8 @@ pub fn enemy_attack(
                 &visuals,
                 ProjectileOwner::Enemy,
             );
+
+            commands.trigger(SfxKind::EnemyShoot);
 
             combat.cooldown.reset();
 

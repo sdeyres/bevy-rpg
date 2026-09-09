@@ -172,22 +172,18 @@ impl CollisionMap {
         pos
     }
 
-    #[cfg(debug_assertions)]
     pub fn width(&self) -> i32 {
         self.width
     }
 
-    #[cfg(debug_assertions)]
     pub fn height(&self) -> i32 {
         self.height
     }
 
-    #[cfg(debug_assertions)]
     pub fn tile_size(&self) -> f32 {
         self.tile_size
     }
 
-    #[cfg(debug_assertions)]
     pub fn origin(&self) -> Vec2 {
         Vec2::new(self.origin_x, self.origin_y)
     }

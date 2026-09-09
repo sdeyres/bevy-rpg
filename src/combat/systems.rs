@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    audio::SfxKind,
     characters::{facing::Facing, input::Player},
     combat::{
         events::ProjectileHit,
@@ -69,6 +70,8 @@ pub fn handle_power_input(
         &visuals,
         ProjectileOwner::Player,
     );
+
+    commands.trigger(SfxKind::PlayerShoot(combat.power_type));
 
     info!("{:?} projctile fired!", combat.power_type);
 }

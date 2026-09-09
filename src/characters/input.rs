@@ -1,11 +1,14 @@
 use bevy::prelude::*;
 
-use crate::characters::{
-    animation::{AnimationController, AnimationTimer},
-    config::CharacterEntry,
-    facing::Facing,
-    physics::Velocity,
-    state::CharacterState,
+use crate::{
+    audio::SfxKind,
+    characters::{
+        animation::{AnimationController, AnimationTimer},
+        config::CharacterEntry,
+        facing::Facing,
+        physics::Velocity,
+        state::CharacterState,
+    },
 };
 
 #[derive(Component)]
@@ -47,6 +50,7 @@ fn determine_new_state(
 }
 
 pub fn handle_player_input(
+    mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
     mut query: Query<
         (
@@ -75,6 +79,9 @@ pub fn handle_player_input(
 
     let new_state = determine_new_state(*state, direction, is_running, wants_jump);
     if *state != new_state {
+        if new_state == CharacterState::Jumping {
+            commands.trigger(SfxKind::Jump);
+        }
         *state = new_state;
     }
 

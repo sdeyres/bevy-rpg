@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::{
+    audio::SfxKind, characters::{
         CharacterEntry, CurrentCharacterIndex, Facing, Player,
         animation::{AnimationController, AnimationTimer, DEFAULT_ANIMATION_FRAME_TIME},
         collider::Collider,
@@ -188,6 +188,7 @@ pub fn handle_save_load_ui(
 }
 
 pub fn handle_slot_buttons(
+    mut commands: Commands,
     mut ui_state: ResMut<SaveLoadUIState>,
     mut pending: ResMut<PendingSaveLoadAction>,
     interaction_query: Query<(&Interaction, &SlotButton), Changed<Interaction>>,
@@ -197,12 +198,15 @@ pub fn handle_slot_buttons(
             continue;
         }
 
+        commands.trigger(SfxKind::ButtonClick);
+
         pending.0 = Some((ui_state.mode, slot_btn.0));
         ui_state.active = false;
     }
 }
 
 pub fn handle_back_button(
+    mut commands: Commands,
     mut ui_state: ResMut<SaveLoadUIState>,
     interaction_query: Query<&Interaction, (Changed<Interaction>, With<BackButton>)>,
     input: Res<ButtonInput<KeyCode>>,
@@ -214,6 +218,7 @@ pub fn handle_back_button(
 
     for interaction in &interaction_query {
         if *interaction == Interaction::Pressed {
+            commands.trigger(SfxKind::ButtonClick);
             ui_state.active = false;
         }
     }

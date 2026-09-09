@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    audio::SfxKind,
     characters::input::Player,
     combat::{
         events::{EntityDeath, ProjectileHit},
@@ -19,6 +20,8 @@ pub fn on_projectile_hit(
     };
 
     health.take_damage(&mut commands, hit.target, hit.damage);
+
+    commands.trigger(SfxKind::Hit);
 
     info!(
         "{:?} hit for {} damage! HP: {:.0} / {:.0}",
@@ -40,6 +43,9 @@ pub fn on_entity_death(
 
     if is_player {
         info!("Player defeated! Game over...");
+        commands.trigger(SfxKind::PlayerDeath);
         next_state.set(GameState::GameOver);
+    } else {
+        commands.trigger(SfxKind::EnemyDeath);
     }
 }

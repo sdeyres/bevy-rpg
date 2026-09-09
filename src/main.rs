@@ -1,3 +1,4 @@
+mod audio;
 mod camera;
 mod characters;
 mod collision;
@@ -15,16 +16,19 @@ use std::path::MAIN_SEPARATOR;
 use bevy::{prelude::*, window::WindowMode};
 
 use crate::{
-    map::generate::{poll_map_generation, prepare_tilemap_handles_resource, setup_generator}, state::GameState,
+    map::generate::{poll_map_generation, prepare_tilemap_handles_resource, setup_generator},
+    state::GameState,
 };
 
 fn main() {
+    let assets_path = get_assets_path();
+
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
         .add_plugins(
             DefaultPlugins
                 .set(AssetPlugin {
-                    file_path: format!("src{MAIN_SEPARATOR}assets"),
+                    file_path: assets_path,
                     ..default()
                 })
                 .set(WindowPlugin {
@@ -46,6 +50,7 @@ fn main() {
         .add_plugins(enemy::EnemyPlugin)
         .add_plugins(particles::ParticlesPlugin)
         .add_plugins(save::SavePlugin)
+        .add_plugins(audio::AudioManagerPlugin)
         .add_systems(Startup, prepare_tilemap_handles_resource)
         .add_systems(OnEnter(GameState::Loading), setup_generator)
         .add_systems(
@@ -53,4 +58,16 @@ fn main() {
             poll_map_generation.run_if(in_state(GameState::Loading)),
         )
         .run();
+}
+
+fn get_assets_path() -> String {
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            let exe_assets = exe_dir.join("assets");
+            if exe_assets.exists() {
+                return exe_assets.to_string_lossy().to_string();
+            }
+        }
+    }
+    format!("src{}assets", MAIN_SEPARATOR)
 }
