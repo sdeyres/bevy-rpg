@@ -80,12 +80,11 @@ impl EnemyPath {
             waypoints
         };
 
-        if let Some(current_target) = self.current_waypoint() {
-            if let Some(new_first) = new_waypoints.first() {
-                if current_target.distance(*new_first) < Self::WAYPOINT_THRESHOLD * 1.5 {
-                    return;
-                }
-            }
+        if let Some(current_target) = self.current_waypoint()
+            && let Some(new_first) = new_waypoints.first()
+            && current_target.distance(*new_first) < Self::WAYPOINT_THRESHOLD * 1.5
+        {
+            return;
         }
 
         self.waypoints = new_waypoints;

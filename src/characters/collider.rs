@@ -78,14 +78,12 @@ pub fn resolve_entity_collisions(mut query: Query<(Entity, &Transform, &mut Velo
             let distance = delta.length();
             let min_distance = radius + other_radius;
 
-            if distance < min_distance * 1.1 {
-                if distance > 0.01 {
-                    let direction = delta / distance;
-                    let velocity_toward = velocity.0.dot(direction);
+            if distance < min_distance * 1.1 && distance > 0.01 {
+                let direction = delta / distance;
+                let velocity_toward = velocity.0.dot(direction);
 
-                    if velocity_toward > 0.0 {
-                        velocity.0 -= direction * velocity_toward;
-                    }
+                if velocity_toward > 0.0 {
+                    velocity.0 -= direction * velocity_toward;
                 }
             }
         }

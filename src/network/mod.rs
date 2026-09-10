@@ -3,14 +3,12 @@ mod connection;
 use bevy::prelude::*;
 
 use crate::{
-    module_bindings::DbConnection,
-    network::connection::{
-        cleanup_network, connect_to_spacetime_db, despawn_multiplayer_screen,
-        handle_multiplayer_back, process_spacetimedb_messages, spawn_multiplayer_screen,
-        update_multiplayer_screen,
-    },
-    state::{GameState, in_multiplayer},
+    module_bindings::DbConnection, network::connection::{
+        cleanup_network, connect_to_spacetime_db, despawn_multiplayer_screen, fetch_world_seed, handle_join_button, handle_join_button_hover, handle_multiplayer_back, process_spacetimedb_messages, spawn_multiplayer_screen, update_join_button, update_multiplayer_screen,
+    }, state::{GameState, in_multiplayer},
 };
+
+pub use connection::PendingWorldSeed;
 
 #[derive(Resource)]
 pub struct SpacetimeConnection {
@@ -29,7 +27,14 @@ impl Plugin for NetworkPlugin {
             Update,
             (
                 process_spacetimedb_messages.run_if(resource_exists::<SpacetimeConnection>),
+                fetch_world_seed
+                    .run_if(in_state(GameState::Loading))
+                    .run_if(resource_exists::<SpacetimeConnection>)
+                    .run_if(not(resource_exists::<PendingWorldSeed>)),
                 update_multiplayer_screen.run_if(in_state(GameState::Loading)),
+                update_join_button.run_if(in_state(GameState::Loading)),
+                handle_join_button.run_if(in_state(GameState::Loading)),
+                handle_join_button_hover.run_if(in_state(GameState::Loading)),
                 handle_multiplayer_back.run_if(in_state(GameState::Loading)),
             )
                 .run_if(in_multiplayer),

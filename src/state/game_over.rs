@@ -1,14 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::{Player, PlayerSpawned},
-    collision::{CollisionMap, CollisionMapBuilt, TileMarker},
-    combat::{HealthBarOwner, Projectile, ProjectileEffect},
-    enemy::{EnemiesSpawned, Enemy},
-    inventory::Inventory,
-    map::MapReady,
-    particles::{Particle, ParticleEmitter},
-    state::GameState,
+    characters::{Player, PlayerSpawned}, collision::{CollisionMap, CollisionMapBuilt, TileMarker}, combat::{HealthBarOwner, Projectile, ProjectileEffect}, enemy::{EnemiesSpawned, Enemy}, inventory::Inventory, map::{MapReady, WorldSeed}, network::PendingWorldSeed, particles::{Particle, ParticleEmitter}, state::GameState,
 };
 
 #[derive(Component)]
@@ -113,4 +106,6 @@ pub fn cleanup_game_world(
     commands.remove_resource::<CollisionMap>();
     inventory.set_items(Default::default());
     commands.remove_resource::<MapReady>();
+    commands.remove_resource::<WorldSeed>();
+    commands.remove_resource::<PendingWorldSeed>();
 }

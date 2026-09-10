@@ -1,5 +1,5 @@
 use petname::Generator;
-use spacetimedb::{Identity, ReducerContext, Table};
+use spacetimedb::{Identity, ReducerContext, Table, rand::RngCore};
 
 const SPAWN_X: f32 = 7712.;
 const SPAWN_Y: f32 = 5408.;
@@ -15,6 +15,15 @@ pub struct Player {
     is_online: bool,
 }
 
+#[spacetimedb::table(accessor = world_config, public)]
+pub struct WorldConfig {
+    #[primary_key]
+    id: u32,
+    map_seed: u64,
+    world_width: u32,
+    world_height: u32,
+}
+
 fn generate_username(ctx: &ReducerContext) -> String {
     let mut rng = ctx.rng();
     let petnames = petname::Petnames::default();
@@ -24,8 +33,15 @@ fn generate_username(ctx: &ReducerContext) -> String {
 }
 
 #[spacetimedb::reducer(init)]
-pub fn init(_ctx: &ReducerContext) {
-    log::info!("Server module initialized!");
+pub fn init(ctx: &ReducerContext) {
+    let seed = ctx.rng().next_u64();
+    ctx.db.world_config().insert(WorldConfig {
+        id: 0,
+        map_seed: seed,
+        world_width: 10,
+        world_height: 10,
+    });
+    log::info!("Server module initialized with world seed {}!", seed);
 }
 
 #[spacetimedb::reducer(client_connected)]
@@ -76,13 +92,22 @@ pub fn register_player(ctx: &ReducerContext, username: String) -> Result<(), Str
 
     let sender = ctx.sender();
 
-    if ctx.db.player().username().find(&username).is_some_and(|p| p.identity != sender) {
+    if ctx
+        .db
+        .player()
+        .username()
+        .find(&username)
+        .is_some_and(|p| p.identity != sender)
+    {
         return Err(format!("'{}' is already taken!", username));
     }
 
     if let Some(player) = ctx.db.player().identity().find(sender) {
         log::info!("Player '{}' renamed to '{}'!", player.username, username);
-        ctx.db.player().identity().update(Player {username, ..player});
+        ctx.db
+            .player()
+            .identity()
+            .update(Player { username, ..player });
         Ok(())
     } else {
         Err("Cannot rename: player not found. Connect first.".into())

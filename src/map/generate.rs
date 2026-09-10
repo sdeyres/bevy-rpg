@@ -17,12 +17,16 @@ use bevy_procedural_tilemaps::{
         grid::GridData,
     },
 };
+use rand::{Rng, SeedableRng, rngs::StdRng};
 
 use crate::{
     config::map::{
         CHUNKS_X, CHUNKS_Y, GRID_X, GRID_Y, NODE_SIZE_Z, TILE_SIZE, TOTAL_GRID_X, TOTAL_GRID_Y,
-    }, map::{
-        assets::{TilemapHandles, load_assets, prepare_tilemap_handles}, rules::build_world,
+    },
+    map::{
+        assets::{TilemapHandles, load_assets, prepare_tilemap_handles},
+        rules::build_world,
+        seed::WorldSeed,
     },
 };
 
@@ -71,7 +75,8 @@ pub fn prepare_tilemap_handles_resource(
 
 pub fn setup_generator(
     mut commands: Commands,
-    tilemap_handles: Res<TilemapHandles>
+    tilemap_handles: Res<TilemapHandles>,
+    world_seed: Res<WorldSeed>,
 ) {
     let (assets_definitions, models, socket_collection) = build_world();
 
@@ -98,8 +103,11 @@ pub fn setup_generator(
         total: CHUNKS_X * CHUNKS_Y,
     });
 
+    let seed = world_seed.0;
+    info!("Starting map generation with seed {}", seed);
     let pool = AsyncComputeTaskPool::get();
-    let task = pool.spawn(async move { generate_all_chunks(rules_arc, grid_template, progress) });
+    let task =
+        pool.spawn(async move { generate_all_chunks(rules_arc, grid_template, progress, seed) });
     commands.insert_resource(MapGenTask(task));
 }
 
@@ -143,7 +151,9 @@ fn generate_all_chunks(
     rules_arc: Arc<Rules<Cartesian3D>>,
     grid_template: CartesianGrid<Cartesian3D>,
     progress: Arc<AtomicU32>,
+    world_seed: u64,
 ) -> Vec<ChunkResult> {
+    let mut master_rng = StdRng::seed_from_u64(world_seed);
     let chunk_order = build_chunk_order();
     let mut generated_chunks: HashMap<
         (u32, u32),
@@ -155,8 +165,11 @@ fn generate_all_chunks(
     while index < chunk_order.len() {
         let (cx, cy) = chunk_order[index];
         let initial_nodes = build_initial_nodes(cx, cy, &generated_chunks, &grid_template);
+        let chunk_seed = master_rng.next_u64();
 
-        if let Some(grid_data) = try_generate_chunk(&rules_arc, &grid_template, &initial_nodes) {
+        if let Some(grid_data) =
+            try_generate_chunk(&rules_arc, &grid_template, &initial_nodes, chunk_seed)
+        {
             generated_chunks.insert((cx, cy), grid_data);
             progress.store((index as u32) + 1, Ordering::Relaxed);
             info!("Generated chunk ({}, {})", cx, cy);
@@ -185,9 +198,8 @@ fn generate_all_chunks(
             cx, cy, bt_x, bt_y, backtracks, MAX_BACKTRACKS
         );
 
-        for rollback_index in backtrack_to..index {
-            let (rx, ry) = chunk_order[rollback_index];
-            generated_chunks.remove(&(rx, ry));
+        for (rx, ry) in chunk_order.iter().take(index).skip(backtrack_to) {
+            generated_chunks.remove(&(*rx, *ry));
         }
         progress.store(backtrack_to as u32, Ordering::Relaxed);
         index = backtrack_to;
@@ -279,6 +291,7 @@ fn try_generate_chunk(
     rules: &Arc<Rules<Cartesian3D>>,
     grid: &CartesianGrid<Cartesian3D>,
     initial_nodes: &[((u32, u32, u32), ModelInstance)],
+    chunk_seed: u64,
 ) -> Option<GridData<Cartesian3D, ModelInstance, CartesianGrid<Cartesian3D>>> {
     let mut border_zones = Vec::with_capacity(initial_nodes.len() * 2);
 
@@ -314,7 +327,7 @@ fn try_generate_chunk(
     let gen_builder = GeneratorBuilder::new()
         .with_shared_rules(rules.clone())
         .with_grid(grid.clone())
-        .with_rng(RngMode::RandomSeed)
+        .with_rng(RngMode::Seeded(chunk_seed))
         .with_node_heuristic(NodeSelectionHeuristic::MinimumRemainingValue)
         .with_model_heuristic(ModelSelectionHeuristic::WeightedProbability)
         .with_border_zones(border_zones);

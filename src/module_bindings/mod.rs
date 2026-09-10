@@ -9,10 +9,14 @@ use spacetimedb_sdk::__codegen::{self as __sdk, __lib, __sats, __ws};
 pub mod player_table;
 pub mod player_type;
 pub mod register_player_reducer;
+pub mod world_config_table;
+pub mod world_config_type;
 
 pub use player_table::*;
 pub use player_type::Player;
 pub use register_player_reducer::register_player;
+pub use world_config_table::*;
+pub use world_config_type::WorldConfig;
 
 #[derive(Clone, PartialEq, Debug)]
 
@@ -54,6 +58,7 @@ impl __sdk::Reducer for Reducer {
 #[doc(hidden)]
 pub struct DbUpdate {
     player: __sdk::TableUpdate<Player>,
+    world_config: __sdk::TableUpdate<WorldConfig>,
 }
 
 impl TryFrom<__ws::v2::TransactionUpdate> for DbUpdate {
@@ -65,6 +70,9 @@ impl TryFrom<__ws::v2::TransactionUpdate> for DbUpdate {
                 "player" => db_update
                     .player
                     .append(player_table::parse_table_update(table_update)?),
+                "world_config" => db_update
+                    .world_config
+                    .append(world_config_table::parse_table_update(table_update)?),
 
                 unknown => {
                     return Err(__sdk::InternalError::unknown_name(
@@ -94,6 +102,9 @@ impl __sdk::DbUpdate for DbUpdate {
         diff.player = cache
             .apply_diff_to_table::<Player>("player", &self.player)
             .with_updates_by_pk(|row| &row.identity);
+        diff.world_config = cache
+            .apply_diff_to_table::<WorldConfig>("world_config", &self.world_config)
+            .with_updates_by_pk(|row| &row.id);
 
         diff
     }
@@ -103,6 +114,9 @@ impl __sdk::DbUpdate for DbUpdate {
             match &table_rows.table[..] {
                 "player" => db_update
                     .player
+                    .append(__sdk::parse_row_list_as_inserts(table_rows.rows)?),
+                "world_config" => db_update
+                    .world_config
                     .append(__sdk::parse_row_list_as_inserts(table_rows.rows)?),
                 unknown => {
                     return Err(
@@ -120,6 +134,9 @@ impl __sdk::DbUpdate for DbUpdate {
                 "player" => db_update
                     .player
                     .append(__sdk::parse_row_list_as_deletes(table_rows.rows)?),
+                "world_config" => db_update
+                    .world_config
+                    .append(__sdk::parse_row_list_as_deletes(table_rows.rows)?),
                 unknown => {
                     return Err(
                         __sdk::InternalError::unknown_name("table", unknown, "QueryRows").into(),
@@ -136,6 +153,7 @@ impl __sdk::DbUpdate for DbUpdate {
 #[doc(hidden)]
 pub struct AppliedDiff<'r> {
     player: __sdk::TableAppliedDiff<'r, Player>,
+    world_config: __sdk::TableAppliedDiff<'r, WorldConfig>,
     __unused: std::marker::PhantomData<&'r ()>,
 }
 
@@ -150,6 +168,11 @@ impl<'r> __sdk::AppliedDiff<'r> for AppliedDiff<'r> {
         callbacks: &mut __sdk::DbCallbacks<RemoteModule>,
     ) {
         callbacks.invoke_table_row_callbacks::<Player>("player", &self.player, event);
+        callbacks.invoke_table_row_callbacks::<WorldConfig>(
+            "world_config",
+            &self.world_config,
+            event,
+        );
     }
 }
 
@@ -811,6 +834,7 @@ impl __sdk::SpacetimeModule for RemoteModule {
 
     fn register_tables(client_cache: &mut __sdk::ClientCache<Self>) {
         player_table::register_table(client_cache);
+        world_config_table::register_table(client_cache);
     }
-    const ALL_TABLE_NAMES: &'static [&'static str] = &["player"];
+    const ALL_TABLE_NAMES: &'static [&'static str] = &["player", "world_config"];
 }

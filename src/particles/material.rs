@@ -43,24 +43,23 @@ impl Material2d for ParticleMaterial {
         _layout: &MeshVertexBufferLayoutRef,
         _key: Material2dKey<Self>,
     ) -> Result<(), SpecializedMeshPipelineError> {
-        if let Some(fragment) = &mut descriptor.fragment {
-            if let Some(target) = fragment.targets.first_mut() {
-                if let Some(target_state) = target.as_mut() {
-                    target_state.blend = Some(BlendState {
-                        color: BlendComponent {
-                            src_factor: BlendFactor::SrcAlpha,
-                            dst_factor: BlendFactor::One,
-                            operation: BlendOperation::Add,
-                        },
-                        alpha: BlendComponent {
-                            src_factor: BlendFactor::One,
-                            dst_factor: BlendFactor::One,
-                            operation: BlendOperation::Add,
-                        },
-                    });
-                    target_state.write_mask = ColorWrites::ALL;
-                }
-            }
+        if let Some(fragment) = &mut descriptor.fragment
+            && let Some(target) = fragment.targets.first_mut()
+            && let Some(target_state) = target.as_mut()
+        {
+            target_state.blend = Some(BlendState {
+                color: BlendComponent {
+                    src_factor: BlendFactor::SrcAlpha,
+                    dst_factor: BlendFactor::One,
+                    operation: BlendOperation::Add,
+                },
+                alpha: BlendComponent {
+                    src_factor: BlendFactor::One,
+                    dst_factor: BlendFactor::One,
+                    operation: BlendOperation::Add,
+                },
+            });
+            target_state.write_mask = ColorWrites::ALL;
         }
         Ok(())
     }

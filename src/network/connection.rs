@@ -1,10 +1,15 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::atomic::Ordering};
 
 use bevy::prelude::*;
 use spacetimedb_sdk::{DbContext, Table};
 
 use crate::{
-    module_bindings::{DbConnection, PlayerTableAccess, playerQueryTableAccess},
+    audio::SfxKind,
+    map::{MapGenProgress, MapReady, WorldSeed},
+    module_bindings::{
+        DbConnection, PlayerTableAccess, WorldConfigTableAccess, playerQueryTableAccess,
+        world_configQueryTableAccess,
+    },
     network::SpacetimeConnection,
     state::{GameMode, GameState},
 };
@@ -12,6 +17,9 @@ use crate::{
 const SPACETIME_DB_URI: &str = "http://127.0.0.1:3000";
 const DATABASE_NAME: &str = "bevy-rpg";
 const TOKEN_FILENAME: &str = "spacetimedb_token";
+
+#[derive(Resource)]
+pub struct PendingWorldSeed(pub u64);
 
 fn token_path() -> Option<PathBuf> {
     let exe = std::env::current_exe().ok()?;
@@ -30,12 +38,8 @@ fn load_token() -> Option<String> {
 }
 
 fn save_token(token: &str) -> std::io::Result<()> {
-    let path = token_path().ok_or_else(|| {
-        std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "Could not determine executable path",
-        )
-    })?;
+    let path =
+        token_path().ok_or_else(|| std::io::Error::other("Could not determine executable path"))?;
     std::fs::write(path, token)
 }
 
@@ -54,10 +58,10 @@ pub fn connect_to_spacetime_db(mut commands: Commands) {
 
             ctx.subscription_builder()
                 .on_applied(|ctx| {
-                    if let Some(identity) = ctx.try_identity() {
-                        if let Some(player) = ctx.db.player().identity().find(&identity) {
-                            info!("Playing as: {}", player.username);
-                        }
+                    if let Some(identity) = ctx.try_identity()
+                        && let Some(player) = ctx.db.player().identity().find(&identity)
+                    {
+                        info!("Playing as: {}", player.username);
                     }
                     info!("Player subscription applied");
                 })
@@ -65,6 +69,7 @@ pub fn connect_to_spacetime_db(mut commands: Commands) {
                     error!("Subscription error: {}", err);
                 })
                 .add_query(|q| q.from.player())
+                .add_query(|q| q.from.world_config())
                 .subscribe();
         })
         .on_connect_error(|_ctx, err| {
@@ -96,6 +101,13 @@ pub fn process_spacetimedb_messages(connection: Res<SpacetimeConnection>) {
     }
 }
 
+pub fn fetch_world_seed(mut commands: Commands, connection: Res<SpacetimeConnection>) {
+    if let Some(config) = connection.conn.db.world_config().id().find(&0) {
+        info!("Received multiplayer world seed: {}", config.map_seed);
+        commands.insert_resource(PendingWorldSeed(config.map_seed));
+    }
+}
+
 #[derive(Component)]
 pub struct MultiplayerScreen;
 
@@ -104,6 +116,9 @@ pub struct ConnectionStatusText;
 
 #[derive(Component)]
 pub struct OnlinePlayersText;
+
+#[derive(Component)]
+pub struct JoinButton;
 
 pub fn spawn_multiplayer_screen(mut commands: Commands) {
     commands
@@ -156,10 +171,36 @@ pub fn spawn_multiplayer_screen(mut commands: Commands) {
                 },
                 TextColor(Color::srgb(0.7, 0.9, 0.7)),
                 Node {
-                    margin: UiRect::bottom(Val::Px(40.)),
+                    margin: UiRect::bottom(Val::Px(30.)),
                     ..default()
                 },
             ));
+
+            parent
+                .spawn((
+                    JoinButton,
+                    Button,
+                    Node {
+                        display: Display::None,
+                        width: Val::Px(220.),
+                        height: Val::Px(55.),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        margin: UiRect::bottom(Val::Px(30.)),
+                        ..default()
+                    },
+                    BackgroundColor(Color::srgba(0.15, 0.3, 0.15, 0.9)),
+                ))
+                .with_children(|btn_parent| {
+                    btn_parent.spawn((
+                        Text::new("Join"),
+                        TextFont {
+                            font_size: FontSize::Px(28.),
+                            ..default()
+                        },
+                        TextColor(Color::WHITE),
+                    ));
+                });
 
             parent.spawn((
                 Text::new("Press [BACKSPACE] to return to main menu"),
@@ -174,15 +215,32 @@ pub fn spawn_multiplayer_screen(mut commands: Commands) {
 
 pub fn update_multiplayer_screen(
     connection: Option<Res<SpacetimeConnection>>,
+    pending_seed: Option<Res<PendingWorldSeed>>,
+    world_seed: Option<Res<WorldSeed>>,
+    progress: Option<Res<MapGenProgress>>,
+    map_ready: Option<Res<MapReady>>,
     mut status_query: Query<&mut Text, (With<ConnectionStatusText>, Without<OnlinePlayersText>)>,
     mut online_query: Query<&mut Text, (With<OnlinePlayersText>, Without<ConnectionStatusText>)>,
 ) {
     let local_identity = connection.as_ref().and_then(|c| c.conn.try_identity());
 
-    let status = if let Some(conn) = &connection {
+    let status = if world_seed.is_some() {
+        if map_ready.is_some() {
+            "Entering world...".into()
+        } else if let Some(progress) = progress.as_ref() {
+            let current = progress.current.load(Ordering::Relaxed);
+            format!("Generating world: {}/{} chunks", current, progress.total)
+        } else {
+            "Generating world...".into()
+        }
+    } else if let Some(conn) = &connection {
         if let Some(identity) = local_identity {
             if let Some(player) = conn.conn.db.player().identity().find(&identity) {
-                format!("Connected as {}", player.username)
+                if pending_seed.is_some() {
+                    format!("Ready to join as: {}", player.username)
+                } else {
+                    format!("Connected as {}", player.username)
+                }
             } else {
                 "Connected, waiting for player data...".into()
             }
@@ -224,6 +282,58 @@ pub fn update_multiplayer_screen(
 
     for mut text in &mut online_query {
         text.0 = online_list.clone();
+    }
+}
+
+pub fn update_join_button(
+    pending: Option<Res<PendingWorldSeed>>,
+    world_seed: Option<Res<WorldSeed>>,
+    mut query: Query<&mut Node, With<JoinButton>>,
+) {
+    let should_show = pending.is_some() && world_seed.is_none();
+    for mut node in &mut query {
+        node.display = if should_show {
+            Display::Flex
+        } else {
+            Display::None
+        };
+    }
+}
+
+pub fn handle_join_button(
+    mut commands: Commands,
+    interaction_query: Query<&Interaction, (Changed<Interaction>, With<JoinButton>)>,
+    pending: Option<Res<PendingWorldSeed>>,
+) {
+    for interaction in interaction_query {
+        if *interaction != Interaction::Pressed {
+            continue;
+        }
+
+        commands.trigger(SfxKind::ButtonClick);
+
+        let Some(pending) = pending.as_ref() else {
+            continue;
+        };
+
+        info!("Joining multiplayer world with seed {}", pending.0);
+        commands.insert_resource(WorldSeed(pending.0));
+        commands.remove_resource::<PendingWorldSeed>();
+    }
+}
+
+pub fn handle_join_button_hover(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor),
+        (Changed<Interaction>, With<JoinButton>),
+    >,
+) {
+    for (interaction, mut bg) in &mut interaction_query {
+        *bg = match interaction {
+            Interaction::Hovered => BackgroundColor(Color::srgba(0.25, 0.45, 0.25, 0.9)),
+            Interaction::Pressed => BackgroundColor(Color::srgba(0.35, 0.6, 0.35, 0.9)),
+            Interaction::None => BackgroundColor(Color::srgba(0.15, 0.3, 0.15, 0.9)),
+        }
     }
 }
 

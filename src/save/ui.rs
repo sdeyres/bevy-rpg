@@ -116,8 +116,7 @@ pub fn handle_save_load_ui(
                 },
             ));
 
-            for slot in 0..MAX_SLOTS {
-                let info = &slot_info[slot];
+            for (slot, info) in slot_info.iter().enumerate().take(MAX_SLOTS) {
                 let label = match info {
                     Some(meta) => format!("Slot {} - {}", slot + 1, meta.timestamp),
                     None => format!("Slot {} - Empty", slot + 1),

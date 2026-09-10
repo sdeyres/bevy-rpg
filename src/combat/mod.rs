@@ -11,7 +11,7 @@ use bevy::prelude::*;
 pub use health::Health;
 pub use healthbar::HealthBarOwner;
 pub use player_combat::PlayerCombat;
-pub use power_type::{PowerType, PowerVisuals};
+pub use power_type::PowerType;
 pub use systems::{
     Projectile, ProjectileEffect, ProjectileOwner, debug_switch_power, handle_power_input,
     spawn_projectile,

@@ -18,7 +18,10 @@ use std::path::MAIN_SEPARATOR;
 use bevy::{prelude::*, window::WindowMode};
 
 use crate::{
-    map::{poll_map_generation, prepare_tilemap_handles_resource, setup_generator},
+    map::{
+        MapReady, MapSpawnResources, WorldSeed, init_single_player_seed, poll_map_generation,
+        prepare_tilemap_handles_resource, setup_generator,
+    },
     state::GameState,
 };
 
@@ -57,24 +60,30 @@ fn main() {
         .add_systems(Startup, prepare_tilemap_handles_resource)
         .add_systems(
             OnEnter(GameState::Loading),
-            setup_generator.run_if(not(state::in_multiplayer)),
+            init_single_player_seed.run_if(not(state::in_multiplayer)),
         )
         .add_systems(
             Update,
-            poll_map_generation
+            setup_generator
                 .run_if(in_state(GameState::Loading))
-                .run_if(not(state::in_multiplayer)),
+                .run_if(resource_exists::<WorldSeed>)
+                .run_if(not(resource_exists::<MapSpawnResources>))
+                .run_if(not(resource_exists::<MapReady>)),
+        )
+        .add_systems(
+            Update,
+            poll_map_generation.run_if(in_state(GameState::Loading)),
         )
         .run();
 }
 
 fn get_assets_path() -> String {
-    if let Ok(exe_path) = std::env::current_exe() {
-        if let Some(exe_dir) = exe_path.parent() {
-            let exe_assets = exe_dir.join("assets");
-            if exe_assets.exists() {
-                return exe_assets.to_string_lossy().to_string();
-            }
+    if let Ok(exe_path) = std::env::current_exe()
+        && let Some(exe_dir) = exe_path.parent()
+    {
+        let exe_assets = exe_dir.join("assets");
+        if exe_assets.exists() {
+            return exe_assets.to_string_lossy().to_string();
         }
     }
     format!("src{}assets", MAIN_SEPARATOR)
